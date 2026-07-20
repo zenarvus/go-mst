@@ -15,9 +15,9 @@ func TestMSTUsage(t *testing.T) {
 	storeB := NewMemoryStore(hashAlgo)
 	storeC := NewMemoryStore(hashAlgo)
 
-	treeA := NewTree(storeA)
-	treeB := NewTree(storeB)
-	treeC := NewTree(storeC)
+	treeA := GetTree(storeA, nil)
+	treeB := GetTree(storeB, nil)
+	treeC := GetTree(storeC, nil)
 
 	keys := [][]byte{
 		[]byte("apple"), []byte("banana"), []byte("berry"),

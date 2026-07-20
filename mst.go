@@ -71,8 +71,11 @@ type Tree struct {
 	rootNodeHash NodeHash
 }
 
-func NewTree(store BlockStore) *Tree {
-	return &Tree{store: store, rootNodeHash: NodeHash{}}
+// GetTree returns a *Tree struct living inside store with the given root node.
+// root can be nil/empty if there is no pre-existing tree yet. A tree will be automatically created upon insertion.
+func GetTree(store BlockStore, root NodeHash) *Tree {
+	if root == nil {root = NodeHash{}}
+	return &Tree{store: store, rootNodeHash: root}
 }
 
 // Return the root NodeHash of the tree.

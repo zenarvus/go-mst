@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 
+	cmpck "github.com/zenarvus/compack/go"
 	polysha "github.com/zenarvus/polyformats/polysha/go"
 )
 
@@ -45,7 +46,7 @@ func VerifyProofPath(proofPath []Node, key ID, expectedRootHash []byte, hashAlgo
 
 	for i, node := range proofPath {
 		// Canonicalize the node to verify its NodeHash matches the expected NodeHash
-		data, err := cmpck.Marshal(&node)
+		data, err := cmpck.Marshal(&node, cmpck.EncOpts{})
 		if err != nil { return fmt.Errorf("failed to serialize node: %w", err) }
 		// Calculate the node's hash. If it's the first item in the slice, it should be the root and it's hash should match with the hash passed to the function.
 		hash, err := polysha.HashRaw(hashAlgorithm, data)
