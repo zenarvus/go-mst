@@ -135,7 +135,7 @@ func (s *SQLStore) Get(nodeHash NodeHash) (*Node, error) {
 }
 
 func (s *SQLStore) Put(node *Node) (NodeHash, error) {
-	data, err := cmpck.Marshal(node, cmpck.EncOpts{})
+	data, err := cmpck.Marshal(node, cmpck.EncOpts{Canonical: true})
 	if err != nil { return nil, err }
 
 	hash, err := polysha.HashRaw(s.hashAlgorithm, data)

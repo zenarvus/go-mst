@@ -29,13 +29,17 @@ func TestMSTUsage(t *testing.T) {
 
 	// Insert into Tree A in alphabetical order
 	for _, key := range keys {
-		if err := treeA.Insert(key); err != nil {
+		cid,err := polysha.Hash(hashAlgo, key)
+		if err != nil {t.Fatalf("Failed to calculate the hash for '%s': %v",key, err)}
+		if err := treeA.Insert(key, cid); err != nil {
 			t.Fatalf("Failed to insert '%s' into Tree A: %v", key, err)
 		}
 	}
 	// Insert into Tree B in reverse alphabetical order
 	for i := len(keys) - 1; i >= 0; i-- {
-		if err := treeB.Insert(keys[i]); err != nil {
+		cid,err := polysha.Hash(hashAlgo, keys[i])
+		if err != nil {t.Fatalf("Failed to calculate the hash for '%s': %v",keys[i], err)}
+		if err := treeB.Insert(keys[i], cid); err != nil {
 			t.Fatalf("Failed to insert '%s' into Tree B: %v", keys[i], err)
 		}
 	}
@@ -60,24 +64,28 @@ func TestMSTUsage(t *testing.T) {
 	if exists { t.Errorf("Expected key '%s' to NOT exist, but it falsely returned true", missingKey) }
 
 	targetKey := []byte("banana")
+	targetCid,err := polysha.Hash(hashAlgo, targetKey)
+	if err != nil {t.Fatalf("Failed to calculate the hash for '%s': %v", targetKey, err)}
 
 	// Proof generation and verification (positive)
 	proofPath, err := treeA.GetProofPath(targetKey)
 	if err != nil { t.Fatalf("Failed to get proof path for '%s': %v", targetKey, err) }
 
-	err = VerifyProofPath(proofPath, targetKey, treeA.Root(), hashAlgo)
+	err = VerifyProofPath(proofPath, targetKey, targetCid, treeA.Root(), hashAlgo)
 	if err != nil { t.Errorf("Failed to verify valid proof for '%s': %v", targetKey, err) }
 
 	// Proof verification (negative)
 	// Try to verify the valid 'banana' proof against a different key with a different proof path ('plums')
-	err = VerifyProofPath(proofPath, []byte("plums"), treeA.Root(), hashAlgo)
+	err = VerifyProofPath(proofPath, []byte("plums"), []byte("12345"), treeA.Root(), hashAlgo)
 	if err == nil { t.Errorf("Expected proof verification to fail for mismatched key, but it falsely succeeded") }
 
 	// Deletion and determinism
 	// Insert everything except "banana" into Tree C
 	for _, key := range keys {
 		if !bytes.Equal(key, targetKey) {
-			if err := treeC.Insert(key); err != nil {
+			cid,err := polysha.Hash(hashAlgo, key)
+			if err != nil {t.Fatalf("Failed to calculate the hash for '%s': %v",key, err)}
+			if err := treeC.Insert(key, cid); err != nil {
 				t.Fatalf("Failed to insert '%s' into Tree C: %v", key, err)
 			}
 		}
